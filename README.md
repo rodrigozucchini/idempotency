@@ -1,260 +1,362 @@
-0. Cómo encarar el problema
-0.1 Framework de 4 pasos: entender el problema, diseño de alto nivel, deep dive, cierre
-0.2 Requisitos funcionales vs no funcionales
-0.3 Capacity estimation y back-of-envelope: QPS, storage, bandwidth, potencias de 2, tabla de latencias
-0.4 SLA / SLO / SLI, los “nueves” de disponibilidad
-0.5 Trade-offs y cómo justificarlos
-0.6 Ciclo de vida del diseño (SDLC), HLD vs LLD, diagramas de HLD
-1. Estilos de arquitectura
-1.1 Monolito, microservicios, monolito modular
-1.2 Event-driven, serverless, pub/sub
-1.3 Stateless vs stateful
-1.4 Request-driven vs event-driven, message-driven vs event-driven
-1.5 Arquitectura hexagonal / clean architecture, DDD (bounded contexts)
-1.6 Containerización y orquestación (Docker, Kubernetes)
-2. Redes y comunicación
-2.1 IP, OSI, TCP vs UDP, handshake
-2.2 DNS, caching DNS, TTL
-2.3 HTTP/1.1, HTTP/2, HTTP/3 (QUIC), keep-alive
-2.4 REST, GraphQL, gRPC, SOAP, diseño de APIs (versionado, paginación, idempotencia)
-2.5 WebSockets, long/short polling, SSE, webhooks
-2.6 Proxies: forward vs reverse
-2.7 API Gateway, BFF
-2.8 CDN, edge caching, CDN vs edge server
-2.9 TLS/SSL, mTLS
-3. Escalabilidad y balanceo de carga
-3.1 Escalado vertical vs horizontal
-3.2 Cuellos de botella de escalabilidad
-3.3 Load balancers L4 vs L7, algoritmos (round robin, least connections, IP hash, weighted)
-3.4 Stateful vs stateless load balancing, load balancing vs failover
-3.5 Consistent hashing
-3.6 Auto scaling, health checks, sticky sessions
-3.7 Concurrencia vs paralelismo, thread pools, async I/O
-3.8 Escalar de 0 a millones de usuarios
-4. Bases de datos y almacenamiento
-4.1 SQL vs NoSQL, cuándo elegir cada uno
-4.2 Tipos: relacional, key-value, documento, columnar, grafo, time-series, vectoriales
-4.3 Normalización y desnormalización
-4.4 Índices (B-Tree, LSM-tree, hash), query planning, optimización de queries
-4.5 Transacciones, ACID vs BASE, niveles de aislamiento, MVCC, deadlocks
-4.6 Replicación (master-slave, multi-master, sync/async, leaderless)
-4.7 Sharding y particionamiento, resharding, hot keys
-4.8 Block vs object vs file storage
-4.9 OLTP vs OLAP, data warehouse, data lake
-4.10 Búsqueda: índice invertido, Elasticsearch
-4.11 Redis y estructuras in-memory
-4.12 Serialización (JSON, Protobuf, Avro) y evolución de esquemas
-4.13 Connection pooling, read replicas, migraciones sin downtime
-5. Caching
-5.1 Estrategias: cache-aside, read-through, write-through, write-back, write-around
-5.2 Políticas de eviction (LRU, LFU, FIFO, TTL)
-5.3 Cache distribuido y su diseño
-5.4 Cold vs warm cache
-5.5 Invalidación de cache
-5.6 Problemas: stampede, penetration, avalanche, hot keys
-5.7 Caché en cliente, CDN, app y DB
-6. Mensajería y procesamiento asíncrono
-6.1 Message queues, pub/sub
-6.2 Kafka, RabbitMQ, SQS: diferencias y cuándo usar cada uno
-6.3 Semánticas de entrega (at-most-once, at-least-once, exactly-once)
-6.4 Idempotencia, deduplicación
-6.5 Dead letter queues, retries, backpressure
-6.6 Orden de mensajes, particiones, consumer groups
-6.7 Event sourcing, event streaming, CQRS
-6.8 Manejo de errores y recuperación de estado en EDA
-6.9 Transactional outbox, CDC
-6.10 Batch vs stream processing (MapReduce, Spark, Flink)
-6.11 Job schedulers y cron distribuido
-7. Sistemas distribuidos
-7.1 Introducción y problemas de diseño (fallas parciales, latencia, concurrencia)
-7.2 Disponibilidad, consistencia, confiabilidad, mantenibilidad
-7.3 Teorema CAP, PACELC
-7.4 Modelos de consistencia: strong, eventual, causal, read-your-writes
-7.5 Consenso: Paxos, Raft, Zab
-7.6 Leader election, quorum, split brain
-7.7 Relojes: NTP, relojes lógicos, vector clocks, Lamport
-7.8 Transacciones distribuidas: 2PC, 3PC, Saga
-7.9 Locks distribuidos (Redlock, fencing tokens, ZooKeeper/etcd)
-7.10 Gossip protocol, failure detection, heartbeat
-7.11 Anti-entropy: Merkle trees, hinted handoff, read repair
-7.12 CRDTs
-7.13 Service discovery y coordinación (ZooKeeper, etcd, Consul)
-7.14 Comunicación segura en sistemas distribuidos
-8. Resiliencia y tolerancia a fallos
-8.1 Fault tolerance, redundancia, failover
-8.2 Timeouts, retries con exponential backoff + jitter
-8.3 Circuit breaker, bulkhead, load shedding, graceful degradation
-8.4 Rate limiting y algoritmos (token bucket, leaky bucket, fixed/sliding window)
-8.5 Backup y disaster recovery (RPO/RTO), multi-AZ, multi-región, active-active vs active-passive
-8.6 Chaos engineering
-9. Seguridad
-9.1 Medidas de seguridad generales, SSDLC
-9.2 Autenticación vs autorización
-9.3 Sesiones, JWT, OAuth 2.0, OIDC, SSO, API keys
-9.4 RBAC / ABAC
-9.5 Cifrado en tránsito y en reposo, gestión de secretos, hashing de passwords
-9.6 OWASP Top 10 (SQLi, XSS, CSRF), DDoS, WAF
-9.7 Privacidad y cumplimiento (GDPR, PCI-DSS para pagos)
-10. Observabilidad, testing y operaciones
-10.1 Logging, métricas, alertas, dashboards
-10.2 Distributed tracing
-10.3 Unit, integration, load y stress testing
-10.4 CI/CD
-10.5 Estrategias de deploy: rolling, blue-green, canary, feature flags
-10.6 Infrastructure as Code, GitOps
-10.7 Service mesh, sidecar
-10.8 Costo vs performance, estimación de costos, FinOps
-10.9 Optimización de performance, latencia vs throughput
-11. Estructuras de datos y algoritmos específicos
-11.1 Bloom filter, HyperLogLog, Count-Min Sketch
-11.2 Trie (autocomplete)
-11.3 Geohash, quadtree, S2 / H3
-11.4 Generadores de IDs únicos (Snowflake, UUID, ULID)
-11.5 Base62 / hashing para URL shortener
-11.6 Consistent hashing ring con virtual nodes
-11.7 LSM-tree, SSTable, skip list
-11.8 Índice invertido, ranking
-11.9 DSA para system design
-12. Low Level Design (LLD)
-12.1 OOP, modularidad e interfaces
-12.2 SOLID, DRY, KISS, YAGNI
-12.3 Patrones creacionales, estructurales y de comportamiento (los 23 de GoF)
-12.4 UML: clases, secuencia, actividad, componentes
-12.5 OOAD, concurrencia a nivel de código (locks, thread safety)
-12.6 Problemas clásicos de LLD: parking lot, ascensor, biblioteca, cajero, tic-tac-toe, rate limiter, LRU cache
-13. Casos de diseño (para practicar)
+---
+name: idempotency
+description: Explica desde cero qué es la idempotencia, para qué se usa, sus tipos/patrones y cómo implementarla en APIs, colas y bases de datos (NestJS, PostgreSQL, Redis, BullMQ). Usar siempre que el usuario mencione idempotencia, idempotency key, reintentos, requests duplicados, doble cobro, "se ejecutó dos veces", webhooks duplicados, mensajes duplicados en colas, upsert, deduplicación o exactly-once, aunque no use la palabra "idempotente".
+---
 
-Vol. 1
+# Idempotencia: de cero a implementación
 
-13.1 Rate limiter
-13.2 Key-value store
-13.3 Generador de IDs únicos
-13.4 URL shortener
-13.5 Web crawler
-13.6 Notification system
-13.7 News feed
-13.8 Chat system
-13.9 Search autocomplete
-13.10 YouTube
-13.11 Google Drive
+## 1. Qué es
 
-Vol. 2
+Una operación es **idempotente** si ejecutarla **una vez** o **N veces** deja el sistema en **el mismo estado final**.
 
-13.12 Proximity service (Yelp)
-13.13 Nearby friends
-13.14 Google Maps
-13.15 Distributed message queue
-13.16 Metrics monitoring
-13.17 Ad click aggregation
-13.18 Hotel reservation
-13.19 Distributed email
-13.20 S3-like object storage
-13.21 Real-time leaderboard
-13.22 Payment system
-13.23 Digital wallet
-13.24 Stock exchange
+```
+f(x) = f(f(x))
+```
 
-De GeeksforGeeks
+Ejemplos cotidianos:
 
-13.25 Dropbox
-13.26 Twitter
-13.27 Netflix
-13.28 Uber
-13.29 BookMyShow
-13.30 Facebook Messenger
+| Operación | ¿Idempotente? | Por qué |
+|---|---|---|
+| Apretar el botón "apagar luz" | Sí | Apagada queda apagada, aunque lo aprietes 5 veces |
+| Apretar el botón del ascensor | Sí | Ya está llamado, más clicks no cambian nada |
+| "Sumar $10 al saldo" | **No** | Cada ejecución cambia el resultado |
+| "Poner el saldo en $110" | Sí | Da igual cuántas veces se ejecute |
+| "Crear un pedido nuevo" | **No** | Cada llamada crea otro pedido |
+| "Cancelar el pedido 42" | Sí | Cancelado queda cancelado |
 
-Extras comunes
+**Idea clave:** idempotente no significa "no hace nada la segunda vez" ni "devuelve siempre la misma respuesta". Significa que **el efecto sobre el estado** no se acumula. (Una respuesta puede variar: un `DELETE` devuelve `204` la primera vez y `404` la segunda, y sigue siendo idempotente porque el estado final es el mismo: el recurso no existe.)
 
-13.31 WhatsApp
-13.32 Instagram
-13.33 TikTok
-13.34 Pastebin
-13.35 Ticketmaster
-13.36 Airbnb
-13.37 E-commerce (carrito + checkout + inventario)
-13.38 Sistema de métodos de pago
-13.39 Distributed lock service
-13.40 Task scheduler
-13.41 Sistema de feature flags
-13.42 API gateway
-13.43 Logging centralizado
-13.44 Web analytics
-13.45 Sistema de votos/likes
-13.46 Sistema de reservas con concurrencia
-14. Temas modernos que casi nadie lista
-14.1 Arquitectura para IA/LLM: RAG, vector DBs, embeddings, inference serving, caché de prompts, colas para jobs de IA, rate limiting por tokens
-14.2 Multi-tenancy
-14.3 Event-driven con CDC y data pipelines
-14.4 A/B testing y experimentación
-14.5 Edge computing y serverless a escala
-14.6 Cloud nativo (sidecar, strangler fig, ambassador, saga, bulkhead)
-14.7 Idempotencia y exactly-once en pagos
-15. Pagos y sistemas financieros
+### Conceptos que se confunden
 
-Fundamentos del dominio
+- **Seguro (safe):** no modifica nada (`GET`). Todo método seguro es idempotente, pero no al revés.
+- **Idempotente:** puede modificar, pero repetir no cambia el resultado final.
+- **Función pura:** misma entrada → misma salida, sin efectos secundarios. Es otro concepto.
 
-15.1 Actores: cliente, comerciante, adquirente, emisor, red de tarjetas, procesador, gateway, PSP
-15.2 Flujo de una tarjeta: autorización, captura, clearing, settlement
-15.3 Autorización vs captura (pre-autorizaciones)
-15.4 Reembolsos, contracargos y disputas
-15.5 Métodos de pago: tarjeta, transferencia, débito directo, billeteras, QR, efectivo, BNPL, cripto
-15.6 Pagos locales (Argentina): Mercado Pago, transferencias 3.0 / CVU-CBU, QR interoperable, Debin, cuotas
-15.7 Multimoneda, conversión de divisas y tipos de cambio
-15.8 Pagos recurrentes y suscripciones (billing, reintentos, dunning)
-15.9 Pagos a terceros: marketplaces, split payments, payouts
+## 2. Por qué existe el problema
 
-Diseño de un sistema de pagos
+En sistemas distribuidos **las llamadas fallan de formas ambiguas**:
 
-15.10 Payment service, executor y orchestrator
-15.11 Integración con PSPs (Stripe, Adyen, Mercado Pago), hosted page vs integración directa
-15.12 Idempotencia con idempotency keys (evitar doble cobro)
-15.13 Máquina de estados del pago
-15.14 Webhooks: confirmación, firmas, reintentos y orden de eventos
-15.15 Reconciliación contra el PSP y el banco
-15.16 Timeouts y estados desconocidos (¿se cobró o no?)
-15.17 Reintentos seguros y exactly-once efectivo
-15.18 Consistencia entre servicios: Saga, outbox, 2PC y sus límites
-15.19 Smart routing y fallback entre PSPs
+```
+Cliente ──POST /pagos──▶ Servidor ──cobra──▶ ✅
+Cliente ◀──── timeout ──── (la respuesta se perdió)
+```
 
-Ledger y contabilidad
+El cliente **no sabe** si el cobro se hizo o no. Si reintenta y la operación no es idempotente → **doble cobro**.
 
-15.20 Ledger y contabilidad de partida doble
-15.21 Datos inmutables y append-only, event sourcing aplicado a dinero
-15.22 Montos como enteros en centavos, nunca float; redondeo
-15.23 Saldos, holds / reservas, disponible vs contable
-15.24 Auditoría y trazabilidad
+Situaciones reales donde pasa lo mismo:
 
-Billetera digital
+- Timeout de red o el usuario hace doble click en "Pagar".
+- Un cliente HTTP / gateway / balanceador **reintenta automáticamente**.
+- Un **webhook** (Stripe, MercadoPago, etc.) se envía de nuevo porque no respondiste a tiempo.
+- Una cola entrega el mensaje **"at-least-once"**: garantiza que llega, pero puede llegar dos veces.
+- Un job falla a la mitad y se reintenta desde el principio.
 
-15.25 Transferencias entre cuentas con consistencia fuerte
-15.26 Transacciones distribuidas y sharding de cuentas
-15.27 Prevención de doble gasto, bloqueos y concurrencia
-15.28 Límites, KYC y AML
+No podés evitar los reintentos (son necesarios para la confiabilidad). Lo que sí podés es que **reintentar sea seguro**. Por eso se dice: *"exactly-once" en la práctica = at-least-once + idempotencia*.
 
-Seguridad y cumplimiento
+## 3. Métodos HTTP y su idempotencia
 
-15.29 PCI-DSS y reducción de scope
-15.30 Tokenización, cifrado, HSM, gestión de claves
-15.31 3D Secure / SCA
-15.32 Detección de fraude: reglas, scoring, ML, velocity checks
-15.33 KYC, AML, regulaciones locales (BCRA, UIF)
-15.34 Protección y retención de datos financieros
+| Método | Seguro | Idempotente | Nota |
+|---|---|---|---|
+| GET, HEAD, OPTIONS | Sí | Sí | Solo lectura |
+| PUT | No | Sí | Reemplaza el recurso completo |
+| DELETE | No | Sí | El estado final es "no existe" |
+| POST | No | **No** | Es el que necesita ayuda (idempotency key) |
+| PATCH | No | Depende | `{status:"paid"}` sí; `{increment: 1}` no |
 
-Operación y confiabilidad
+Esto es lo que dice la especificación; **tu implementación puede romperlo** (un `PUT` que además manda un mail cada vez ya no es idempotente en la práctica).
 
-15.35 Alta disponibilidad y degradación controlada
-15.36 Rate limiting y protección contra card testing
-15.37 Monitoreo: tasa de éxito, latencia, contracargos, alertas por PSP
-15.38 Disaster recovery, auditorías y sandbox
+## 4. Tipos / patrones para lograrla
 
-Casos de diseño de pagos
+### Tipo A: Idempotente por diseño (la mejor opción cuando se puede)
 
-15.39 Payment system (checkout con PSP)
-15.40 Digital wallet
-15.41 Suscripciones y billing
-15.42 Marketplace con split payments y payouts
-15.43 Reembolsos y contracargos
-15.44 Motor de detección de fraude
-15.45 Reconciliación diaria
-15.46 Stock exchange / matching engine
-15.47 E-commerce con carrito, stock y pago atómico
+Diseñá la operación como **"establecer un estado"** en vez de **"aplicar un cambio"**.
+
+```sql
+-- ❌ No idempotente
+UPDATE cuentas SET saldo = saldo + 10 WHERE id = 1;
+
+-- ✅ Idempotente (estado absoluto)
+UPDATE cuentas SET saldo = 110 WHERE id = 1;
+-- (ojo: puede pisar cambios concurrentes, ver Tipo D)
+```
+
+Otras formas: `PUT` en vez de `POST`, `SET` en vez de `INCREMENT`, `ensure_exists` en vez de `create`.
+
+### Tipo B: Upsert / constraint único (clave natural)
+
+Si el recurso tiene un **identificador natural o externo** (id del pago en el proveedor, email, número de orden), dejá que la base lo garantice.
+
+```sql
+CREATE UNIQUE INDEX ux_pagos_external_id ON pagos(external_id);
+
+INSERT INTO pagos (external_id, monto, estado)
+VALUES ($1, $2, 'pendiente')
+ON CONFLICT (external_id) DO NOTHING;      -- o DO UPDATE SET ...
+```
+
+La segunda ejecución no inserta nada. La unicidad la garantiza **la base de datos**, no tu código (que sufre race conditions).
+
+### Tipo C: Idempotency Key (para POST y operaciones no naturalmente idempotentes)
+
+El **cliente** genera un identificador único (UUID) por *intención de operación* y lo manda en un header. El servidor guarda el resultado asociado a esa clave y, si la ve de nuevo, **devuelve el resultado guardado en vez de volver a ejecutar**.
+
+```http
+POST /pagos
+Idempotency-Key: 8f14e45f-ceea-4e5c-9d8b-1a2b3c4d5e6f
+Content-Type: application/json
+
+{ "monto": 5000, "moneda": "ARS" }
+```
+
+Flujo del servidor:
+
+```
+Llega request con Idempotency-Key K
+│
+├─ ¿K no existe?        → registrar K como "en_progreso", ejecutar, guardar respuesta, marcar "completada"
+├─ ¿K existe y completada, mismo body?   → devolver la MISMA respuesta guardada (sin re-ejecutar)
+├─ ¿K existe y en_progreso?              → 409 Conflict (ya se está procesando)
+└─ ¿K existe pero body distinto?         → 422 (reutilizaron la clave con otro request: error del cliente)
+```
+
+Es el patrón que usan Stripe, Adyen, PayPal, etc.
+
+### Tipo D: Control de concurrencia / condición de estado
+
+Hacés que la operación **solo aplique si el estado es el esperado**. Si ya se aplicó, no hace nada.
+
+```sql
+-- Máquina de estados: solo se puede pagar un pedido pendiente
+UPDATE pedidos SET estado = 'pagado'
+WHERE id = $1 AND estado = 'pendiente';
+-- filas afectadas = 1 → se aplicó; = 0 → ya estaba pagado (o cancelado): no repetir efectos
+```
+
+Variante con **versión (optimistic locking)**:
+
+```sql
+UPDATE productos SET stock = $1, version = version + 1
+WHERE id = $2 AND version = $3;
+```
+
+### Tipo E: Deduplicación de mensajes (consumidores de colas / webhooks)
+
+Cada mensaje trae un **id único**. El consumidor registra los ids ya procesados (patrón *Inbox* / *processed messages*) y descarta repetidos. Lo importante: **registrar el id y aplicar el efecto en la misma transacción**.
+
+```sql
+CREATE TABLE mensajes_procesados (
+  message_id text PRIMARY KEY,
+  processed_at timestamptz NOT NULL DEFAULT now()
+);
+```
+
+### Resumen: ¿cuál elijo?
+
+| Situación | Patrón |
+|---|---|
+| Podés redefinir la operación como "setear estado" | A |
+| Hay un id natural/externo (pago del proveedor, email) | B |
+| `POST` que crea algo o cobra, cliente propio / API pública | **C** |
+| Transiciones de estado (pendiente → pagado) | D |
+| Webhooks y consumidores de colas / eventos | E (+ B) |
+
+Se combinan: una API de pagos suele usar **C** hacia afuera y **B + D** por dentro.
+
+## 5. Cómo implementarlo (NestJS + PostgreSQL)
+
+### 5.1 Tabla de claves
+
+```sql
+CREATE TABLE idempotency_keys (
+  user_id         uuid        NOT NULL,
+  key             text        NOT NULL,
+  request_hash    text        NOT NULL,           -- hash del método + path + body
+  status          text        NOT NULL CHECK (status IN ('en_progreso','completada')),
+  response_status int,
+  response_body   jsonb,
+  created_at      timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (user_id, key)                      -- la clave se scopea por usuario
+);
+```
+
+Scopear por usuario evita que alguien "pise" la clave de otro. Programá una limpieza (TTL típico: 24 h a 7 días).
+
+### 5.2 Servicio
+
+```ts
+import { Injectable, ConflictException, UnprocessableEntityException } from '@nestjs/common';
+import { DataSource } from 'typeorm';
+import { createHash } from 'crypto';
+
+type Guardada = { status: number; body: unknown };
+
+@Injectable()
+export class IdempotencyService {
+  constructor(private readonly ds: DataSource) {}
+
+  hash(payload: unknown): string {
+    return createHash('sha256').update(JSON.stringify(payload)).digest('hex');
+  }
+
+  /** Devuelve la respuesta guardada si ya se completó; null si hay que ejecutar. */
+  async begin(userId: string, key: string, requestHash: string): Promise<Guardada | null> {
+    // Intento reservar la clave de forma atómica
+    const inserted = await this.ds.query(
+      `INSERT INTO idempotency_keys (user_id, key, request_hash, status)
+       VALUES ($1, $2, $3, 'en_progreso')
+       ON CONFLICT (user_id, key) DO NOTHING
+       RETURNING key`,
+      [userId, key, requestHash],
+    );
+    if (inserted.length > 0) return null; // la reservé yo → ejecutar
+
+    const [row] = await this.ds.query(
+      `SELECT request_hash, status, response_status, response_body
+         FROM idempotency_keys WHERE user_id = $1 AND key = $2`,
+      [userId, key],
+    );
+
+    if (row.request_hash !== requestHash) {
+      throw new UnprocessableEntityException('Idempotency-Key reutilizada con otro request');
+    }
+    if (row.status === 'en_progreso') {
+      throw new ConflictException('Request en progreso, reintentá en unos segundos');
+    }
+    return { status: row.response_status, body: row.response_body };
+  }
+
+  async complete(userId: string, key: string, status: number, body: unknown) {
+    await this.ds.query(
+      `UPDATE idempotency_keys
+          SET status = 'completada', response_status = $3, response_body = $4
+        WHERE user_id = $1 AND key = $2`,
+      [userId, key, status, JSON.stringify(body)],
+    );
+  }
+
+  /** Si la operación falla de forma que querés permitir reintento, liberá la clave. */
+  async release(userId: string, key: string) {
+    await this.ds.query(
+      `DELETE FROM idempotency_keys WHERE user_id = $1 AND key = $2 AND status = 'en_progreso'`,
+      [userId, key],
+    );
+  }
+}
+```
+
+### 5.3 Uso en un controller
+
+```ts
+@Post('pagos')
+async crearPago(
+  @Headers('idempotency-key') key: string,
+  @Body() dto: CrearPagoDto,
+  @Req() req,
+  @Res({ passthrough: true }) res: Response,
+) {
+  if (!key) throw new BadRequestException('Falta el header Idempotency-Key');
+
+  const userId = req.user.id;
+  const hash = this.idem.hash({ m: 'POST', p: '/pagos', b: dto });
+
+  const guardada = await this.idem.begin(userId, key, hash);
+  if (guardada) {                       // repetición: devolvemos lo mismo
+    res.status(guardada.status);
+    return guardada.body;
+  }
+
+  try {
+    const pago = await this.pagosService.crear(userId, dto);
+    await this.idem.complete(userId, key, 201, pago);
+    res.status(201);
+    return pago;
+  } catch (e) {
+    await this.idem.release(userId, key); // permitir reintento si fue un error transitorio
+    throw e;
+  }
+}
+```
+
+Más adelante podés moverlo a un **Interceptor** o decorator (`@Idempotent()`) para no repetirlo en cada endpoint.
+
+### 5.4 Consumidor de cola con deduplicación (BullMQ / eventos)
+
+```ts
+async procesar(msg: { id: string; data: any }) {
+  await this.ds.transaction(async (tx) => {
+    const r = await tx.query(
+      `INSERT INTO mensajes_procesados (message_id) VALUES ($1)
+       ON CONFLICT DO NOTHING RETURNING message_id`,
+      [msg.id],
+    );
+    if (r.length === 0) return;           // ya procesado → ignorar
+
+    await this.aplicarEfecto(tx, msg.data); // efecto + registro: misma transacción
+  });
+}
+```
+
+En **BullMQ** podés pasar un `jobId` determinístico al encolar para evitar duplicados mientras el job exista:
+
+```ts
+await queue.add('enviar-mail', payload, { jobId: `mail:${pedidoId}` });
+```
+
+Ojo: eso deduplica el *encolado*, no reemplaza la idempotencia del *worker* (los jobs pueden reintentarse).
+
+### 5.5 Redis como alternativa liviana
+
+Para locks o dedupe de corta vida (no como única fuente de verdad en pagos):
+
+```ts
+// SET key valor NX EX 86400  → solo setea si no existe
+const ok = await redis.set(`idem:${userId}:${key}`, 'en_progreso', 'EX', 86400, 'NX');
+if (ok !== 'OK') { /* ya existe: leer resultado guardado o devolver 409 */ }
+```
+
+Si Redis se cae o evicta la clave, perdés la garantía. Para dinero, preferí Postgres.
+
+## 6. Errores comunes
+
+1. **Chequear antes de insertar** (`if (!existe) crear()`): tiene race condition. Usá constraint único / `ON CONFLICT`.
+2. **Efectos secundarios fuera de la transacción:** guardás la clave pero el mail/cobro se manda dos veces si falla en el medio. Aplicá efecto + registro juntos, o hacé el efecto externo también idempotente (pasándole la misma clave al proveedor).
+3. **No validar el hash del body:** la misma clave con otro payload devolvería una respuesta que no corresponde.
+4. **Clave generada por el servidor:** tiene que generarla el **cliente** *una vez por intención*, y reutilizarla en cada reintento. Si el cliente genera una nueva en cada reintento, no sirve de nada.
+5. **Claves globales sin scope de usuario.**
+6. **Nunca expirar las claves:** la tabla crece sin límite.
+7. **Cachear errores permanentes o transitorios sin criterio:** definí qué guardás (normalmente éxitos y errores de validación) y cuándo liberás la clave (errores 5xx transitorios).
+8. **Confundir idempotencia con "ignorar el segundo request":** el segundo request debería devolver un resultado coherente (idealmente el mismo del primero).
+
+## 7. Checklist para diseñar una operación idempotente
+
+- [ ] ¿Qué pasa si esta operación se ejecuta 2 veces seguidas? ¿Y en paralelo?
+- [ ] ¿Se puede expresar como "setear estado" (Tipo A)?
+- [ ] ¿Hay un id natural/externo para una constraint única (Tipo B)?
+- [ ] Si es un `POST` crítico (pagos, pedidos, envíos): ¿hay Idempotency-Key (Tipo C)?
+- [ ] ¿Las transiciones de estado están protegidas con condición (`WHERE estado = ...`) (Tipo D)?
+- [ ] ¿Los consumidores de colas/webhooks deduplican por id (Tipo E)?
+- [ ] ¿El efecto y el registro de "ya hecho" están en la misma transacción?
+- [ ] ¿Hay TTL/limpieza de las claves?
+- [ ] ¿Probé: doble click, timeout + reintento, dos requests concurrentes con la misma clave, misma clave con otro body?
+
+## 8. Cómo probarlo
+
+Test mínimo (Jest + supertest): mandar el mismo request dos veces con la misma clave y verificar que **se creó un solo registro** y que **ambas respuestas son iguales**. Agregar un caso de concurrencia con `Promise.all([req(), req()])`: uno debe ganar y el otro recibir `409` (o la respuesta guardada).
+
+```ts
+it('no duplica el pago con la misma Idempotency-Key', async () => {
+  const body = { monto: 5000, moneda: 'ARS' };
+  const headers = { 'Idempotency-Key': 'test-key-1' };
+
+  const r1 = await request(app.getHttpServer()).post('/pagos').set(headers).send(body);
+  const r2 = await request(app.getHttpServer()).post('/pagos').set(headers).send(body);
+
+  expect(r1.status).toBe(201);
+  expect(r2.body).toEqual(r1.body);
+  expect(await pagosRepo.count()).toBe(1);
+});
+```
+
+## 9. Regla de oro
+
+> **Asumí que todo se va a ejecutar más de una vez.** Diseñá cada operación que cambia estado para que repetirla sea inofensivo.
