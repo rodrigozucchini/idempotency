@@ -1,8 +1,3 @@
----
-name: idempotency
-description: Explica desde cero qué es la idempotencia, para qué se usa, sus tipos/patrones y cómo implementarla en APIs, colas y bases de datos (NestJS, PostgreSQL, Redis, BullMQ). Usar siempre que el usuario mencione idempotencia, idempotency key, reintentos, requests duplicados, doble cobro, "se ejecutó dos veces", webhooks duplicados, mensajes duplicados en colas, upsert, deduplicación o exactly-once, aunque no use la palabra "idempotente".
----
-
 # Idempotencia: de cero a implementación
 
 ## 1. Qué es
